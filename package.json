@@ -1,0 +1,13 @@
+{
+  "name": "lighthouse-google-sheet-reports",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:vitaliimelnychuk/lighthouse-google-sheet-reports.git",
+  "author": "Vitalii Melnychuk <vvv.melnychuk@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "chrome-launcher": "^0.14.0",
+    "fs": "^0.0.1-security",
+    "lighthouse": "^8.1.0"
+  }
+}
