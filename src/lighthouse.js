@@ -11,8 +11,6 @@ const runForPage = async (pageUrl, options) => {
     ...options,
   });
 
-  console.log(runnerResult.lhr);
-
   return {
     performance: runnerResult.lhr.categories.performance.score * 100,
     accessibility: runnerResult.lhr.categories.accessibility.score * 100,
