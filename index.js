@@ -1,37 +1,28 @@
-const fs = require("fs");
-const lighthouse = require("lighthouse");
 const chromeLauncher = require("chrome-launcher");
+const {
+  createGoogleSheetClient,
+  getUrls,
+  addMetrics,
+} = require("./src/googleSheet");
+const { runForPage } = require("./src/lighthouse");
+const { formatDate } = require("./src/utils");
 
-(async () => {
+async function main() {
   const chrome = await chromeLauncher.launch({ chromeFlags: ["--headless"] });
-  const options = {
-    logLevel: "info",
-    output: "html",
-    onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
+  const lighthouseOptions = {
     port: chrome.port,
   };
-  const runnerResult = await lighthouse("https://example.com", options);
+  const googleSheetClient = createGoogleSheetClient();
 
-  // `.report` is the HTML report as a string
-  const reportHtml = runnerResult.report;
-  fs.writeFileSync("lhreport.html", reportHtml);
+  const urls = await getUrls(googleSheetClient);
+  const date = formatDate(new Date());
+  for (const urlIndex in urls) {
+    const url = urls[urlIndex];
+    const metrics = await runForPage(url, lighthouseOptions);
+    await addMetrics(googleSheetClient, { url, metrics, date });
+  }
 
-  // `.lhr` is the Lighthouse Result as a JS object
-  console.log("categories", runnerResult.lhr.categories);
-  console.log(
-    "Performance:",
-    runnerResult.lhr.categories.performance.score * 100
-  );
-  console.log(
-    "accessibility:",
-    runnerResult.lhr.categories.accessibility.score * 100
-  );
-
-  console.log("seo:", runnerResult.lhr.categories.seo.score * 100);
-
-  console.log(
-    "best-practices:",
-    runnerResult.lhr.categories["best-practices"].score * 100
-  );
   await chrome.kill();
-})();
+}
+
+main();
